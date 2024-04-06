@@ -25,7 +25,7 @@ new_width = 500
 new_height = 300
 
 # 调整图片大小到新的尺寸
-image = pygame.transform.scale(image, (new_width, new_height))
+# image = pygame.transform.scale(image, (new_width, new_height))
 
 
 # 运行标志
