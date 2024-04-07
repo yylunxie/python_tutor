@@ -9,7 +9,7 @@ size = width, height = 480, 640
 screen = pygame.display.set_mode(size)
 
 # 設置窗口標題
-pygame.display.set_caption("Pacman簡單地圖示例")
+pygame.display.set_caption("Pacman")
 
 # 定義顏色
 BLACK = (0, 0, 0)
@@ -79,7 +79,7 @@ running = True
 move_direction = None
 
 def will_collide(rect, walls):
-    """檢查矩形是否會與牆壁列表中的任一牆壁碰撞"""
+    """檢查是否會與牆壁列表中的任一牆壁碰撞"""
     for wall in walls:
         if rect.colliderect(wall):
             return True
@@ -106,6 +106,7 @@ while running:
     next_x, next_y = pacman_x, pacman_y
     if move_direction == 'left':
         next_x -= speed
+        # next_x = next_x - speed
     elif move_direction == 'right':
         next_x += speed
     elif move_direction == 'up':
@@ -114,8 +115,8 @@ while running:
         next_y += speed
 
     # 檢查下一步是否會碰撞
-    next_rect = pygame.Rect(next_x, next_y, pacman_size, pacman_size)
-    if not will_collide(next_rect, [pygame.Rect(*wall) for wall in walls]):
+    next_pacman = pygame.Rect(next_x, next_y, pacman_size, pacman_size)
+    if not will_collide(next_pacman, [pygame.Rect(*wall) for wall in walls]):
         pacman_x, pacman_y = next_x, next_y
 
     # 填充背景色
