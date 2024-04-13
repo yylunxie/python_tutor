@@ -73,7 +73,7 @@ running = True
 # 移動方向
 move_direction = None
 
-def check_collision(pacman_x, pacman_y, map_data):
+def check_collision(pacman_x, pacman_y, map_data, direction):
     """
     检查Pacman是否与墙壁发生碰撞。
     :param pacman_x: Pacman的x坐标
@@ -83,17 +83,31 @@ def check_collision(pacman_x, pacman_y, map_data):
     :return: 如果Pacman与墙壁发生碰撞，返回True，否则返回False
     """
     # 计算Pacman所在的格子位置
-    tile_size = 40
-    grid_x = pacman_x // tile_size
-    grid_y = pacman_y // tile_size
+    body = 15
+    if direction == 'left':
+        pos_x = [pacman_x - body, pacman_x - body]
+        pos_y = [pacman_y + body, pacman_y - body]
+    elif direction == 'right':
+        pos_x = [pacman_x + body, pacman_x + body]
+        pos_y = [pacman_y + body, pacman_y - body]
+    elif direction == 'up':
+        pos_x = [pacman_x + body, pacman_x - body]
+        pos_y = [pacman_y - body, pacman_y - body]
+    elif direction == 'down':
+        pos_x = [pacman_x + body, pacman_x - body]
+        pos_y = [pacman_y + body, pacman_y + body]
+    else:
+        return False
+    
+    for i in range(2):
+        grid_x = pos_x[i] // tile_size
+        grid_y = pos_y[i] // tile_size
      
-    # 检查Pacman所在格子是否为墙壁
-    if map_data[int(grid_y)][int(grid_x)] == 1:
-        return True
+        # 检查Pacman所在格子是否为墙壁
+        if map_data[int(grid_y)][int(grid_x)] == 1:
+            return True
     return False
 
-
-    
 
 
 # 主循环
@@ -116,7 +130,6 @@ while running:
     next_x, next_y = pacman_x, pacman_y
     if move_direction == 'left':
         next_x -= speed
-        # next_x = next_x - speed
     elif move_direction == 'right':
         next_x += speed
     elif move_direction == 'up':
@@ -128,7 +141,7 @@ while running:
     
     pacman_c_x = next_x + pacman_size // 2
     pacman_c_y = next_y + pacman_size // 2
-    if not check_collision(pacman_c_x, pacman_c_y, map_data):
+    if not check_collision(pacman_c_x, pacman_c_y, map_data, move_direction):
         pacman_x, pacman_y = next_x, next_y
          
     
