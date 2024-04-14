@@ -141,8 +141,12 @@ while running:
     
     pacman_c_x = next_x + pacman_size // 2
     pacman_c_y = next_y + pacman_size // 2
+    # Todo 1: check screen cross boundary
     if not check_collision(pacman_c_x, pacman_c_y, map_data, move_direction):
         pacman_x, pacman_y = next_x, next_y
+        
+    
+    # Todo: detect food collision
          
     
        
