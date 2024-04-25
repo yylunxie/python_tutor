@@ -73,6 +73,11 @@ walls = [
 ]
 
         
+# 食物位置列表和已被吃掉的食物集合     
+food_positions = [(x, y) for y in range(height // 10) for x in range(width // 10) if not any(pygame.Rect(x*10, y*10, 10, 10).colliderect(pygame.Rect(*wall)) for wall in walls)]
+food_eaten = set()
+score = 0  # 初始得分
+
 # 運行標誌
 running = True
 # 移動方向
@@ -84,6 +89,15 @@ def will_collide(rect, walls):
         if rect.colliderect(wall):
             return True
     return False
+
+
+# 更新显示得分
+def display_score():
+    font = pygame.font.SysFont(None, 36)
+    score_surface = font.render('Score: {}'.format(score), True, YELLOW)
+    screen.blit(score_surface, (10, 10))
+    
+    
 
 while running:
     # 事件處理
@@ -118,6 +132,9 @@ while running:
     next_pacman = pygame.Rect(next_x, next_y, pacman_size, pacman_size)
     if not will_collide(next_pacman, [pygame.Rect(*wall) for wall in walls]):
         pacman_x, pacman_y = next_x, next_y
+        if (int(pacman_x // 10), int(pacman_y // 10)) in food_positions and (int(pacman_x // 10), int(pacman_y // 10)) not in food_eaten:
+            food_eaten.add((int(pacman_x // 10), int(pacman_y // 10)))
+            score += 10  # 增加得分
 
     # 填充背景色
     screen.fill(BLACK)

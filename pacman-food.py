@@ -19,7 +19,7 @@ YELLOW = (255, 255, 0)
 # 初始位置
 pacman_x, pacman_y = 2, 405
 # 移動速度
-speed = 0.5
+speed = 1
 
 # Pacman的大小
 pacman_size = 30
@@ -72,6 +72,8 @@ def draw_food(screen, map_data):
 running = True
 # 移動方向
 move_direction = None
+score = 0  # 初始得分
+
 
 def check_collision(pacman_x, pacman_y, map_data, direction):
     """
@@ -109,6 +111,23 @@ def check_collision(pacman_x, pacman_y, map_data, direction):
     return False
 
 
+# 检查Pacman是否与食物点重合并更新得分
+def check_food(pacman_x, pacman_y, map_data, score):
+    grid_x = int(pacman_x // tile_size)
+    grid_y = int(pacman_y // tile_size)
+
+    if map_data[grid_y][grid_x] == 0:  # 检查是否为食物点
+        map_data[grid_y][grid_x] = 2  # 标记食物被吃掉
+        return score + 10  # 每个食物10分
+    return score
+
+
+def display_score(screen, score):
+    font = pygame.font.SysFont('Arial', 24)
+    score_text = font.render(f'Score: {score}', True, YELLOW)
+    screen.blit(score_text, (10, 10))
+
+
 
 # 主循环
 while running:
@@ -143,6 +162,7 @@ while running:
     pacman_c_y = next_y + pacman_size // 2
     if not check_collision(pacman_c_x, pacman_c_y, map_data, move_direction):
         pacman_x, pacman_y = next_x, next_y
+        score = check_food(pacman_x, pacman_y, map_data, score)
          
     
        
@@ -157,6 +177,8 @@ while running:
     
     # 繪製Pacman
     pygame.draw.rect(screen, YELLOW, pygame.Rect(pacman_x, pacman_y, pacman_size, pacman_size))
+    
+    display_score(screen, score)
     
     # 更新显示
     pygame.display.flip()
