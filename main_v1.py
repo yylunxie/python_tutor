@@ -9,30 +9,83 @@ pygame.init()
 # 創建一個時鐘對象
 clock = pygame.time.Clock()
 
-# 设置窗口大小
+# 設置窗口大小
 size = width, height = 600, 840
 screen = pygame.display.set_mode(size)
 
-# 设置窗口标题
-pygame.display.set_caption("Pacman地图与食物点")
+# 設置窗口標題
+pygame.display.set_caption("Pacman地圖與食物點")
 
-# 定义颜色
+# 定義顏色
 BLUE = (0, 0, 255)
 BLACK = (0, 0, 0)
 YELLOW = (255, 255, 0)
 
-# 初始位置
-pacman_x, pacman_y = 2, 405
-# 移動速度
-speed = 1
-
-# Pacman的大小
-pacman_size = 30
-
-
-
 # 瓦片大小
 tile_size = 40
+
+# Pacman 類定義
+class Pacman:
+    def __init__(self, x, y, size, speed):
+        self.x = x
+        self.y = y
+        self.size = size
+        self.speed = speed
+        self.direction = None
+
+    def move(self):
+        if self.direction == 'left':
+            self.x -= self.speed
+        elif self.direction == 'right':
+            self.x += self.speed
+        elif self.direction == 'up':
+            self.y -= self.speed
+        elif self.direction == 'down':
+            self.y += self.speed
+
+    def update(self, map_data, tile_size):
+        next_x, next_y = self.x, self.y
+        self.move()
+        if self.check_collision(map_data, tile_size):
+            self.x, self.y = next_x, next_y  # 如果發生碰撞，不更新坐標
+
+    # def check_collision(self, map_data, tile_size):
+    #     grid_x = int((self.x + self.size // 2) // tile_size)
+    #     grid_y = int((self.y + self.size // 2) // tile_size)
+    #     return map_data[grid_y][grid_x] == 1
+    def check_collision(self, map_data, tile_size):
+        if not self.direction:
+            return False  # 如果没有方向，则不检查碰撞
+
+        body = self.size / 2
+        pacman_x = self.x
+        pacman_y = self.y
+
+        # 根据方向计算检测碰撞的两个点
+        if self.direction == 'left':
+            pos_x = [pacman_x - body, pacman_x - body]
+            pos_y = [pacman_y + body, pacman_y - body]
+        elif self.direction == 'right':
+            pos_x = [pacman_x + body, pacman_x + body]
+            pos_y = [pacman_y + body, pacman_y - body]
+        elif self.direction == 'up':
+            pos_x = [pacman_x + body, pacman_x - body]
+            pos_y = [pacman_y - body, pacman_y - body]
+        elif self.direction == 'down':
+            pos_x = [pacman_x + body, pacman_x - body]
+            pos_y = [pacman_y + body, pacman_y + body]
+
+        # 检查每个点是否在墙壁上
+        for i in range(2):
+            grid_x = int(pos_x[i] // tile_size)
+            grid_y = int(pos_y[i] // tile_size)
+            if map_data[grid_y][grid_x] == 1:
+                return True  # 如果任一检测点在墙壁上，立即返回True
+
+        return False  # 如果没有碰撞，返回False
+
+# 初始化 Pacman 實例
+pacman = Pacman(2, 405, 30, 1)
 
 def draw_map(screen, map_data):
     for y, row in enumerate(map_data):
@@ -160,40 +213,26 @@ current_level = 0
 
 # 主循环
 while running:
+    speed = pacman.speed
     # 事件處理
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT:
-                move_direction = 'left'
+                pacman.direction = 'left'
             elif event.key == pygame.K_RIGHT:
-                move_direction = 'right'
+                pacman.direction = 'right'
             elif event.key == pygame.K_UP:
-                move_direction = 'up'
+                pacman.direction = 'up'
             elif event.key == pygame.K_DOWN:
-                move_direction = 'down'
+                pacman.direction = 'down'
 
-    # 計算Pacman的下一步位置
-    next_x, next_y = pacman_x, pacman_y
-    if move_direction == 'left':
-        next_x -= speed
-    elif move_direction == 'right':
-        next_x += speed
-    elif move_direction == 'up':
-        next_y -= speed
-    elif move_direction == 'down':
-        next_y += speed
-        
-    # 檢查下一步是否會碰撞
-    
-    pacman_c_x = next_x + pacman_size // 2
-    pacman_c_y = next_y + pacman_size // 2
-    if not check_collision(pacman_c_x, pacman_c_y, levels[current_level], move_direction):
-        pacman_x, pacman_y = next_x, next_y
-        score = check_food(pacman_x, pacman_y, levels[current_level], score)
+    # 更新Pacman的位置
+    pacman.update(levels[current_level], tile_size)
+    score = check_food(pacman.x, pacman.y, levels[current_level], score)  # 更新得分
          
-    if check_level_completion(pacman_x, pacman_y, levels[current_level], tile_size):
+    if check_level_completion(pacman.x, pacman.y, levels[current_level], tile_size):
         show_score_page(screen, score)  # 顯示得分頁面
         waiting_for_input = True  # 等待玩家按鍵來繼續
        
@@ -232,7 +271,7 @@ while running:
         draw_food(screen, levels[current_level])
         
         # 繪製Pacman
-        pygame.draw.rect(screen, YELLOW, pygame.Rect(pacman_x, pacman_y, pacman_size, pacman_size))
+        pygame.draw.rect(screen, YELLOW, (pacman.x, pacman.y, pacman.size, pacman.size))
         display_score(screen, score, current_level)
         
         # 更新显示
