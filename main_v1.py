@@ -14,7 +14,7 @@ size = width, height = 600, 840
 screen = pygame.display.set_mode(size)
 
 # 设置窗口标题
-pygame.display.set_caption("Pacman地图与食物点")
+pygame.display.set_caption("Pacman")
 
 # 定义颜色
 BLUE = (0, 0, 255)
